@@ -23,68 +23,50 @@ limitations under the License.
 #include "tensorflow/lite/micro/micro_log.h"
 
 #include "esp_main.h"
-#if DISPLAY_SUPPORT
-#include "image_provider.h"
-#include "bsp/esp-bsp.h"
+#include "esp_timer.h"
+#include "esp_camera.h"
+#include "img_converters.h"
 
-// Camera definition is always initialized to match the trained detection model: 96x96 pix
-// That is too small for LCD displays, so we extrapolate the image to 192x192 pix
-#define IMG_WD (96 * 2)
-#define IMG_HT (96 * 2)
+#define HOLD_TIME 5000
 
-static lv_obj_t *camera_canvas = NULL;
-static lv_obj_t *person_indicator = NULL;
-static lv_obj_t *label = NULL;
+static int64_t elapsed_time = 0;
+uint8_t *jpeg_image = NULL;
+size_t jpeg_img_size = 0;
+camera_fb_t *camera_fb;
 
-static void create_gui(void)
+void RespondToDetection(float person_score, float no_person_score)
 {
-  bsp_display_start();
-  bsp_display_backlight_on(); // Set display brightness to 100%
-  bsp_display_lock(0);
-  camera_canvas = lv_canvas_create(lv_scr_act());
-  assert(camera_canvas);
-  lv_obj_align(camera_canvas, LV_ALIGN_TOP_MID, 0, 0);
+    int person_score_int = (person_score) * 100 + 0.5;
+    (void)no_person_score; // unused
 
-  person_indicator = lv_led_create(lv_scr_act());
-  assert(person_indicator);
-  lv_obj_align(person_indicator, LV_ALIGN_BOTTOM_MID, -70, 0);
-  lv_led_set_color(person_indicator, lv_palette_main(LV_PALETTE_GREEN));
-
-  label = lv_label_create(lv_scr_act());
-  assert(label);
-  lv_label_set_text_static(label, "Person detected");
-  lv_obj_align_to(label, person_indicator, LV_ALIGN_OUT_RIGHT_MID, 20, 0);
-  bsp_display_unlock();
-}
-#endif // DISPLAY_SUPPORT
-
-void RespondToDetection(float person_score, float no_person_score) {
-  int person_score_int = (person_score) * 100 + 0.5;
-  (void) no_person_score; // unused
-#if DISPLAY_SUPPORT
-    if (!camera_canvas) {
-      create_gui();
+    if (elapsed_time == 0)
+    {
+        elapsed_time = esp_timer_get_time();
     }
 
-    uint16_t *buf = (uint16_t *) image_provider_get_display_buf();
-
-    bsp_display_lock(0);
-    if (person_score_int < 60) { // treat score less than 60% as no person
-      lv_led_off(person_indicator);
-    } else {
-      lv_led_on(person_indicator);
+    if (person_score_int > 60)
+    {
+        if (((esp_timer_get_time() - elapsed_time) / 1000) >= HOLD_TIME)
+        {
+            camera_fb = esp_camera_fb_get();
+            MicroPrintf("TRIGGER!");
+            free(jpeg_image);
+            bool ret = frame2jpg(camera_fb, 80, &jpeg_image, &jpeg_img_size);
+            if (ret != true)
+            {
+                MicroPrintf("JPEG conversion failed");
+            }
+            //esp_err_t esp_ret = smtp_client_send_email(jpeg_image, jpeg_img_size);
+            //if (esp_ret != ESP_OK)
+            //{
+            //    ESP_LOGE(TAG, "Failed to send the email, returned %02X", esp_ret);
+            //}
+            esp_camera_fb_return(camera_fb);
+            elapsed_time = 0;
+        }
     }
-    lv_canvas_set_buffer(camera_canvas, buf, IMG_WD, IMG_HT, LV_IMG_CF_TRUE_COLOR);
-    bsp_display_unlock();
-#endif // DISPLAY_SUPPORT
-  //MicroPrintf("person score:%d%%, no person score %d%%",
-  //            person_score_int, 100 - person_score_int);
-  if(person_score_int > 60)
-  {
-    MicroPrintf("Person detected!");
-  }
-  else
-  {
-    MicroPrintf("No person detected!");
-  }
+    else
+    {
+        //MicroPrintf("No person detected!");
+    }
 }
