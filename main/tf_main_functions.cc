@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "main_functions.h"
+#include "tf_main_functions.h"
 
 #include "detection_responder.h"
 #include "image_provider.h"
@@ -200,4 +200,12 @@ void run_inference(void *ptr) {
   float no_person_score_f =
       (no_person_score - output->params.zero_point) * output->params.scale;
   RespondToDetection(person_score_f, no_person_score_f);
+}
+
+void tf_main(void) {
+  setup();
+
+  while (true) {
+    loop();
+  }
 }

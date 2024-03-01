@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "main_functions.h"
+#include "tf_main_functions.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
@@ -21,13 +21,6 @@ limitations under the License.
 
 #include "esp_main.h"
 
-void tf_main(void) {
-  setup();
-
-  while (true) {
-    loop();
-  }
-}
 
 extern "C" void app_main() {
   xTaskCreate((TaskFunction_t)&tf_main, "tf_main", 4 * 1024, NULL, 8, NULL);
