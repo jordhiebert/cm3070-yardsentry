@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(EXTRA_COMPONENT_DIRS static_images)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 function(add_bsp SDKCONFIG BSP TARGET)
@@ -26,4 +25,4 @@ if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/sdkconfig)
     add_bsp("${SDKCONFIG_RULE}" "TFLITE_USE_BSP_KALUGA" "esp32s2")
 endif()
 
-project(person_detection)
+project(cm3070-yardsentry)

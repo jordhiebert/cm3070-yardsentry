@@ -36,10 +36,6 @@ static uint16_t *display_buf; // buffer to hold data to be sent to display
 
 // Get the camera module ready
 TfLiteStatus InitCamera() {
-#if CLI_ONLY_INFERENCE
-  ESP_LOGI(TAG, "CLI_ONLY_INFERENCE enabled, skipping camera init");
-  return kTfLiteOk;
-#endif
 // if display support is present, initialise display buf
 #if DISPLAY_SUPPORT
   if (display_buf == NULL) {
