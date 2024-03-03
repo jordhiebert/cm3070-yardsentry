@@ -10,6 +10,7 @@
 #include "webserver.h"
 #include "esp_netif.h"
 #include "wifi.h"
+#include "image_store.h"
 
 extern "C" void app_main()
 {
@@ -30,6 +31,9 @@ extern "C" void app_main()
 
     // Initialize and connect WiFi
     ESP_ERROR_CHECK(wifi_init_sta());
+
+    // set up our image store
+    image_store_init();
 
     // Start the web server
     httpd_handle_t server = start_webserver();

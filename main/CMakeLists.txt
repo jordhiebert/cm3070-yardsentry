@@ -9,6 +9,7 @@ idf_component_register(
         "app_camera_esp.c"
         "wifi.c"
         "webserver.c"
+        "image_store.c"
 
     PRIV_REQUIRES
         spi_flash
