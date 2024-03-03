@@ -1,27 +1,39 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
+#include <stdio.h>
 #include "tf_main_functions.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
 #include "esp_main.h"
+#include "nvs_flash.h"
+#include "esp_event.h"
+#include "webserver.h"
+#include "esp_netif.h"
+#include "wifi.h"
 
-extern "C" void app_main() {
-  xTaskCreate((TaskFunction_t)&tf_main, "tf_main", 4 * 1024, NULL, 8, NULL);
-  vTaskDelete(NULL);
+extern "C" void app_main()
+{
+    // Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    // Initialize the TCP/IP stack
+    ESP_ERROR_CHECK(esp_netif_init());
+
+    // Create the default event loop
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    // Initialize and connect WiFi
+    ESP_ERROR_CHECK(wifi_init_sta());
+
+    // Start the web server
+    httpd_handle_t server = start_webserver();
+
+    xTaskCreate((TaskFunction_t)&tf_main, "tf_main", 4 * 1024, NULL, 8, NULL);
+    vTaskDelete(NULL);
 }

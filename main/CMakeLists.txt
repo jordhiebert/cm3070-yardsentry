@@ -1,8 +1,3 @@
-
-#
-# Main component of TF Micro project 'person_detection'.
-#
-
 idf_component_register(
     SRCS
         "detection_responder.cc"
@@ -12,6 +7,14 @@ idf_component_register(
         "model_settings.cc"
         "person_detect_model_data.cc"
         "app_camera_esp.c"
+        "wifi.c"
+        "webserver.c"
 
-    PRIV_REQUIRES spi_flash
+    PRIV_REQUIRES
+        spi_flash
+        esp_wifi
+        nvs_flash
+        esp_http_server
+        esp_netif
+
     INCLUDE_DIRS "")
