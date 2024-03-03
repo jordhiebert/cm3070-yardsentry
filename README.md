@@ -1,25 +1,27 @@
-# Person detection example
+# CM3070 Final Project - Yard Sentry - Jordan Hiebert
 
-This example shows how you can use Tensorflow Lite to run a 250 kilobyte neural
-network to recognize people in images captured by a camera.  It is designed to
-run on systems with small amounts of memory such as microcontrollers and DSPs.
-This uses the experimental int8 quantized version of the person detection model.
+This repo is the code for Jordan Hiebert's CM3070 Final Project: Yard Sentry. It is functional prototype with the following features:
 
-## Deploy to ESP32
+* 250 kilobyte Tensorflow Lite neural network to recognize people in images captured by a camera
+* Web server to monitor and interact with the project
+* Home Assistant integration to undertake automations and alerting based on person detections
 
-The following instructions will help you build and deploy this sample
-to [ESP32](https://www.espressif.com/en/products/hardware/esp32/overview)
-devices using the [ESP IDF](https://github.com/espressif/esp-idf).
+## Requirements
 
-The sample has been tested on ESP-IDF version `release/v4.2` and `release/v4.4` with the following devices:
-- [ESP32-DevKitC](http://esp-idf.readthedocs.io/en/latest/get-started/get-started-devkitc.html)
-- [ESP32-S3-DevKitC](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html)
-- [ESP-EYE](https://github.com/espressif/esp-who/blob/master/docs/en/get-started/ESP-EYE_Getting_Started_Guide.md)
-- [ESP32-S3-EYE](https://github.com/espressif/esp-bsp/tree/master/bsp/esp32_s3_eye)
-- [ESP32-S3-Korvo-2](https://github.com/espressif/esp-bsp/tree/master/bsp/esp32_s3_korvo_2)
-- [ESP32-S2-Kaluga](https://github.com/espressif/esp-bsp/tree/master/bsp/esp32_s2_kaluga_kit) (limited performance on ESP32-S2: ~1-2 FPS)
+### Hardware
+This project has been built and tested on the ESP32-CAM module by AI-Thinker, but in theory it should be possible to adapt to others with relatively minor tweaks.
 
-### Install the ESP IDF
+### ESP IDF
+
+This project was created using Espressif's IDF, which can be installed via IDE plugins and also manually if desired.
+
+#### IDE
+The easiest (and recommended by Espressif) way to install the ESP IDF is via IDE extensions. Both Eclipse and VS Code are supported.
+
+* [VS Code](https://github.com/espressif/vscode-esp-idf-extension/blob/master/docs/tutorial/install.md)
+* [Eclipse](https://github.com/espressif/idf-eclipse-plugin/blob/master/README.md)
+
+#### Manual installation
 
 Follow the instructions of the
 [ESP-IDF get started guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html)
@@ -31,16 +33,19 @@ The next steps assume that the
  * The `IDF_PATH` environment variable is set
  * `idf.py` and Xtensa-esp32 tools (e.g. `xtensa-esp32-elf-gcc`) are in `$PATH`
 
-### Dependencies
+## Build and run
 
-This example requires an external component [esp32-camera](https://components.espressif.com/components/espressif/esp32-camera) and optionally on selected Board Support Package. All these components are distributed via [IDF Component Manager](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-component-manager.html).
+### Getting started
 
-### Building the example
+1. Clone the project
+2. Navigate to project root directory
 
-Set the chip target (For esp32s3 target, IDF version `release/v4.4` is needed):
+### Set target and build
+
+Set the chip target:
 
 ```
-idf.py set-target esp32s3
+idf.py set-target esp32
 ```
 
 Then build with `idf.py`
@@ -48,7 +53,7 @@ Then build with `idf.py`
 idf.py build
 ```
 
-### Load and run the example
+### Flashing
 
 To flash and monitor (replace `/dev/ttyUSB0` with the device serial port):
 ```
@@ -57,28 +62,10 @@ idf.py --port /dev/ttyUSB0 flash monitor
 
 Use `Ctrl+]` to exit.
 
-### Using Display
+### Accessing the device web interface
 
-If your development board has a display, input from the camera can be shown on it.
-This feature is enabled by specific [Board Support Package](https://github.com/espressif/esp-bsp).
+You can access the device web interface with any web browser, using the IP address output on the debug monitor: http://<IP_ADDRESS>
 
-Select your development board BSP in menuconfig: `Application Configuration -> Select BSP`.
+### Home Assistant integration
 
-### Using CLI for inferencing
-
-Not all dev boards come with camera and you may wish to do inferencing on static images.
-There are 10 [images](static_images/sample_images/README.md) embedded into the application.
-
-  * To switch to CLI mode just define the following line in [esp_main.h](main/esp_main.h):
-
-  ```
-  #define CLI_ONLY_INFERENCE 1
-  ```
-
-  * To run an inferencing you need to type following on `idf.py monitor` window:
-
-```
-detect_image <image_number>
-```
-where `<image_number>` is in [0, 9]. 
-The output is person and no_person score printed on the log screen.
+TODO: Home Assistant integration description.
