@@ -9,8 +9,10 @@ extern "C" {
 #endif
 
 void image_store_init(void);
-void save_jpeg_image(uint8_t *jpeg_image, size_t jpeg_img_size);
-uint8_t* get_jpeg_image(size_t *jpeg_img_size);
+void save_last_detection_image(uint8_t *jpeg_image, size_t jpeg_img_size);
+uint8_t* get_last_detection_image(size_t *jpeg_img_size);
+void save_most_recent_image(uint8_t *jpeg_image, size_t jpeg_img_size);
+uint8_t* get_most_recent_image(size_t *jpeg_img_size);
 
 #ifdef __cplusplus
 }
