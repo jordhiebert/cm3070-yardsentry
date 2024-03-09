@@ -10,6 +10,7 @@ idf_component_register(
         "wifi.c"
         "webserver.c"
         "image_store.c"
+        "mqtt.c"
 
     PRIV_REQUIRES
         spi_flash
@@ -17,5 +18,6 @@ idf_component_register(
         nvs_flash
         esp_http_server
         esp_netif
+        mqtt
 
     INCLUDE_DIRS "")
