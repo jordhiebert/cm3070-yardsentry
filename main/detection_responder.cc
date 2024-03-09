@@ -6,6 +6,7 @@
 #include "esp_camera.h"
 #include "img_converters.h"
 #include "image_store.h"
+#include "mqtt.h"
 
 #define HOLD_TIME 5000
 
@@ -38,6 +39,7 @@ void RespondToDetection(float person_score, float no_person_score)
             }
 
             save_jpeg_image(jpeg_image, jpeg_img_size);
+            mqtt_publish("cm3070-yardsentry/detection", "Person detected");
             
             esp_camera_fb_return(camera_fb);
             elapsed_time = 0;
