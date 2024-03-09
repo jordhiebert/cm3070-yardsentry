@@ -20,19 +20,32 @@ void image_store_init(void)
 // Save the latest JPEG image
 void save_jpeg_image(uint8_t *jpeg_image, size_t jpeg_img_size)
 {
-    if (s_mutex == NULL)
+    if (xSemaphoreTake(s_mutex, portMAX_DELAY))
     {
-        ESP_LOGE(TAG, "JPEG image mutex not initialized.");
-        return;
+        if (s_jpeg_image)
+        {
+            free(s_jpeg_image);
+            s_jpeg_image = NULL;
+            s_jpeg_img_size = 0;
+        }
+
+        s_jpeg_image = malloc(jpeg_img_size);
+        if (s_jpeg_image == NULL)
+        {
+            ESP_LOGE(TAG, "Failed to allocate memory for new image");
+        }
+        else
+        {
+            memcpy(s_jpeg_image, jpeg_image, jpeg_img_size);
+            s_jpeg_img_size = jpeg_img_size;
+        }
+
+        xSemaphoreGive(s_mutex);
     }
-
-    xSemaphoreTake(s_mutex, portMAX_DELAY);
-    free(s_jpeg_image); // Free previous image if any
-    s_jpeg_image = jpeg_image;
-    s_jpeg_img_size = jpeg_img_size;
-    xSemaphoreGive(s_mutex);
-
-    ESP_LOGI(TAG, "JPEG image saved.");
+    else
+    {
+        ESP_LOGE(TAG, "JPEG image mutex error");
+    }
 }
 
 // Get the latest JPEG image
@@ -43,7 +56,7 @@ uint8_t *get_jpeg_image(size_t *jpeg_img_size)
 
     if (s_mutex == NULL)
     {
-        ESP_LOGE(TAG, "JPEG image mutex not initialized.");
+        ESP_LOGE(TAG, "JPEG image mutex not initialized");
         return NULL;
     }
 

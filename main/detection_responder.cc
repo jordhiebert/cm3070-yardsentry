@@ -7,6 +7,7 @@
 #include "img_converters.h"
 #include "image_store.h"
 #include "mqtt.h"
+#include "esp_log.h"
 
 #define HOLD_TIME 5000
 
@@ -14,6 +15,8 @@ static int64_t elapsed_time = 0;
 uint8_t *jpeg_image = NULL;
 size_t jpeg_img_size = 0;
 camera_fb_t *camera_fb;
+
+static const char *TAG = "detection_responder";
 
 void RespondToDetection(float person_score, float no_person_score)
 {
@@ -30,23 +33,19 @@ void RespondToDetection(float person_score, float no_person_score)
         if (((esp_timer_get_time() - elapsed_time) / 1000) >= HOLD_TIME)
         {
             camera_fb = esp_camera_fb_get();
-            MicroPrintf("TRIGGER!");
+            ESP_LOGI(TAG, "Person detected");
             free(jpeg_image);
             bool ret = frame2jpg(camera_fb, 80, &jpeg_image, &jpeg_img_size);
             if (ret != true)
             {
-                MicroPrintf("JPEG conversion failed");
+                ESP_LOGE(TAG, "JPEG conversion failed");
             }
 
             save_jpeg_image(jpeg_image, jpeg_img_size);
-            mqtt_publish("cm3070-yardsentry/detection", "Person detected");
-            
+            mqtt_publish("cm3070-yardsentry/detection", "detected");
+
             esp_camera_fb_return(camera_fb);
             elapsed_time = 0;
         }
-    }
-    else
-    {
-        //MicroPrintf("No person detected!");
     }
 }
