@@ -66,6 +66,6 @@ Use `Ctrl+]` to exit.
 
 You can access the device web interface with any web browser, using the IP address output on the debug monitor: http://<IP_ADDRESS>
 
-### Home Assistant integration
+### MQTT integration
 
-TODO: Home Assistant integration description.
+This project publishes detection events based on configuratiokn in mqtt.h.
